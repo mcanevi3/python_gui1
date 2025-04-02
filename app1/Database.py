@@ -32,11 +32,24 @@ class Database:
     def delete_table(self,table_name:str):
         self.exec(f"DROP TABLE IF EXISTS {table_name}")
 
+    def insert(self,table_name:str,columns:list,values:str):
+        # INSERT INTO table (column1,column2 ,..) VALUES( value1,	value2 ,...);
+        vals=[f"'{v}'" for v in values]
+        sql_str=f"INSERT INTO {table_name} ({",".join(columns)}) VALUES({",".join(vals)})"
+        print(sql_str)
+        self.exec(sql_str)
+        self.con.commit()
+
+    def select_all(self,table_name:str):
+        res=self.exec(f"SELECT * FROM {table_name}")
+        data=res.fetchall()
+        print(data)
+
     def __del__(self):
         self.con.close()
 
 db=Database("deneme.sqlite")
-db.create_table("test_table",["id","name"],[int,str])
-db.list_tables()
-db.delete_table("test_table")
-db.list_tables()
+# db.create_table("test_table",["id","name"],[int,str])
+# db.insert("test_table",["id","name"],["0","ascd"])
+# db.insert("test_table",["id","name"],["1","cd"])
+db.select_all("test_table")
