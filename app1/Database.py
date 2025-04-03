@@ -40,7 +40,7 @@ class Database:
     def delete_table(self,table_name:str):
         self.exec(f"DROP TABLE IF EXISTS {table_name}")
 
-    def insert(self,table_name:str,columns:list,values:str):
+    def insert(self,table_name:str,columns:list,values:list):
         # INSERT INTO table (column1,column2 ,..) VALUES( value1,	value2 ,...);
         vals=[f"'{v}'" for v in values]
         sql_str=f"INSERT INTO {table_name} ({",".join(columns)}) VALUES({",".join(vals)})"
@@ -55,13 +55,29 @@ class Database:
             return data
         else:
             return None
+    def select(self,table_name:str,columns:list,values:list):
+        sql_str=f"SELECT * FROM {table_name} WHERE "
+        for i,col in enumerate(columns):
+            val=values[i]
+            if type(val) is str:
+                val=f"'{val}'"
 
+            if i<len(values)-1:
+                sql_str+=f"{col}={val} AND "
+            else:
+                sql_str+=f"{col}={val} "
+        res=self.exec(sql_str)
+        data=res.fetchall()
+        return data
+        
     def __del__(self):
         self.con.close()
 
-db=Database("deneme.sqlite")
-# # db.create_table("test_table",["id","name"],[int,str])
-# # db.insert("test_table",["id","name"],["0","ascd"])
-# # db.insert("test_table",["id","name"],["1","cd"])
-res=db.select_all("drink")
-print(res)
+if __name__=="__main__":
+    db=Database("deneme.sqlite")
+    # # db.create_table("test_table",["id","name"],[int,str])
+    # # db.insert("test_table",["id","name"],["0","ascd"])
+    # # db.insert("test_table",["id","name"],["1","cd"])
+    res=db.select_all("drink")
+    res=db.select("test_table",["id"],[1])
+    print(res)
