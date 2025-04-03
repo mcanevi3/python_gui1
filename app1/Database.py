@@ -27,7 +27,15 @@ class Database:
     def list_tables(self):
         res=self.exec("SELECT name FROM sqlite_master WHERE type = 'table'")
         data=res.fetchall()
-        print(data)
+        return data
+    
+    def has_table(self,table_name:str):
+        tables=self.list_tables()
+        exists=False
+        for item in tables:
+            if item[0]==table_name:
+                exists=True
+        return exists            
 
     def delete_table(self,table_name:str):
         self.exec(f"DROP TABLE IF EXISTS {table_name}")
@@ -41,15 +49,19 @@ class Database:
         self.con.commit()
 
     def select_all(self,table_name:str):
-        res=self.exec(f"SELECT * FROM {table_name}")
-        data=res.fetchall()
-        print(data)
+        if self.has_table(table_name=table_name):
+            res=self.exec(f"SELECT * FROM {table_name}")
+            data=res.fetchall()
+            return data
+        else:
+            return None
 
     def __del__(self):
         self.con.close()
 
 db=Database("deneme.sqlite")
-# db.create_table("test_table",["id","name"],[int,str])
-# db.insert("test_table",["id","name"],["0","ascd"])
-# db.insert("test_table",["id","name"],["1","cd"])
-db.select_all("test_table")
+# # db.create_table("test_table",["id","name"],[int,str])
+# # db.insert("test_table",["id","name"],["0","ascd"])
+# # db.insert("test_table",["id","name"],["1","cd"])
+res=db.select_all("drink")
+print(res)
