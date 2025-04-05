@@ -54,14 +54,33 @@ class DrinkDB:
     
     def update(self,drink:Drink):
         # UPDATE employees SET lastname = 'Smith' WHERE employeeid = 3;
-        query=f"UPDATE {self.table_name} SET "
         
         res=self.db.select(self.table_name,["name","brand"],[drink.name,drink.brand])
-        print(res)                                                                                                                                                                                                                                                                                                                                                                             
-        return                                                                                                                       
-        for key,value in drink.dict().items():
-            print(key,value)
+        if len(res)==0:
+            self.save(drink)
+        elif len(res)==1:
+            res=res[0]
+            
+            temp=[]
+            keys=list(drink.dict().keys())
+            values=list(drink.dict().values())
 
+            for i,key in enumerate(keys):
+                val=values[i]
+                if key=="portions":
+                    portions_str=[str(v) for v in val]
+                    val=",".join(portions_str)
+
+                if res[i]!=val:
+                    temp.append(f"{key}={val} ")
+            
+            query=f"UPDATE {self.table_name} SET {" AND ".join(temp)} WHERE name='{drink.name}' AND brand='{drink.brand}'"
+            self.db.exec(query)
+
+        else:
+            assert False,"Multiple records found!"
+        return
+    
     def save(self,drink:Drink):
         # drink to database
         db=self.db
@@ -85,10 +104,10 @@ class DrinkDB:
         
 if __name__=="__main__":
     bridge=DrinkDB("drink1.sqlite")
-    d=Drink({'amount': 200, 'brand': 'starbucks', 'name': 'mocha', 'caffein': 140, 'calories': 550, 'portions': [100, 200, 500, 750, 1000]})
+    d=Drink({'amount': 200, 'brand': 'starbucks', 'name': 'mocha', 'caffein': 20, 'calories': 550, 'portions': [100, 200, 500, 750, 1000]})
     bridge.update(d)
     # bridge.save(d)
 
-    # res=bridge.load()
-    # for r in res:
-    #     r.print()
+    res=bridge.load()
+    for r in res:
+        r.print()
