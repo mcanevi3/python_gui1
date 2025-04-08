@@ -73,11 +73,31 @@ class Database:
     def __del__(self):
         self.con.close()
 
+class Table:
+    table_name=""
+    columns=[]
+    file_name:str
+
+    def __init__(self,file_name:str,properties:dict):
+        self.table_name=properties["table_name"]
+        for col in properties["columns"]:
+            print(col)
+        self.db=Database(file_name)
+
+    def create(self):
+        pass
+    
+    def print(self):
+        print(f"[{self.table_name}]")
+        for col in self.columns:
+            print(col)
+
 if __name__=="__main__":
-    db=Database("deneme.sqlite")
+    table1=Table("deneme.sqlite",{"table_name":"coffee","columns":[("name",str),("brand",str),("calories",int)]})
+    # db=Database("deneme.sqlite")
     # # db.create_table("test_table",["id","name"],[int,str])
     # # db.insert("test_table",["id","name"],["0","ascd"])
     # # db.insert("test_table",["id","name"],["1","cd"])
-    res=db.select_all("drink")
-    res=db.select("test_table",["id"],[1])
-    print(res)
+    # res=db.select_all("drink")
+    # res=db.select("test_table",["id"],[1])
+    # print(res)
